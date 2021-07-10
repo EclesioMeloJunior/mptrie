@@ -1,6 +1,8 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
 type Trie struct {
 	root Node
@@ -81,13 +83,7 @@ func (t *Trie) Put(key, value []byte) error {
 		if branch, ok := (*node).(*BranchNode); ok {
 			branchNibble, remaining := nibbles[0], nibbles[1:]
 			nibbles = remaining
-			node = &branch.Branches[branchNibble]
-
-			if node == nil {
-				newLeaf := NewLeafNodeFromNibbles(remaining, value)
-				branch.SetBranch(branchNibble, newLeaf)
-				return nil
-			}
+			node = &branch.Branches[int(branchNibble)]
 
 			continue
 		}
