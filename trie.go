@@ -114,7 +114,6 @@ func (t *Trie) Put(key, value []byte) error {
 
 				return nil
 			}
-
 			nibbles = nibbles[matched:]
 			node = &ext.Next
 			continue

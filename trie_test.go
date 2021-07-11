@@ -159,3 +159,38 @@ func TestPut_WhenRootIsBranchNodeWithEmptySlot_ShouldAddLeafNode(t *testing.T) {
 	require.IsType(t, &LeafNode{}, branch.Branches[int(secondNibbles[0])])
 	require.IsType(t, &LeafNode{}, branch.Branches[int(thirdNibbles[0])])
 }
+
+func TestPut_WhenRootIsExtensionNodeShouldAddNewLeafNode(t *testing.T) {
+	trie := NewTrie()
+
+	err := trie.Put([]byte("block.header"), []byte("some_hash"))
+	require.NoError(t, err)
+
+	err = trie.Put([]byte("block.number"), []byte("1"))
+	require.NoError(t, err)
+
+	require.IsType(t, &ExtensionNode{}, trie.root)
+
+	newNibbles := FromBytes([]byte("block.number"))
+	leafNibbles := FromBytes([]byte("block.header"))
+
+	matched := PrefixMatchedLen(newNibbles, leafNibbles)
+
+	extnode := trie.root.(*ExtensionNode)
+	require.Equal(t, leafNibbles[:matched], extnode.Path)
+	require.IsType(t, &BranchNode{}, extnode.Next)
+
+	err = trie.Put([]byte("transfer.input"), []byte("1000"))
+	require.NoError(t, err)
+
+	require.IsType(t, &BranchNode{}, trie.root)
+	txNibbles := FromBytes([]byte("transfer.input"))
+
+	branch := trie.root.(*BranchNode)
+	txLeafNode := branch.Branches[int(txNibbles[0])]
+
+	require.IsType(t, &LeafNode{}, txLeafNode)
+
+	extNode := branch.Branches[int(extnode.Path[0])]
+	require.IsType(t, &ExtensionNode{}, extNode)
+}
