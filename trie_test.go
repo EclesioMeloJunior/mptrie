@@ -194,3 +194,26 @@ func TestPut_WhenRootIsExtensionNodeShouldAddNewLeafNode(t *testing.T) {
 	extNode := branch.Branches[int(extnode.Path[0])]
 	require.IsType(t, &ExtensionNode{}, extNode)
 }
+
+func TestPut_WhenExtensionDoesntHaveRemaining(t *testing.T) {
+	firstKey, firstValue := []byte("transfer.to"), []byte("some-addr")
+	secondKey, secondValue := []byte("transfer.input"), []byte("some-value")
+	thirdKey, thirdValue := []byte("transfer.gas"), []byte("some-fee")
+
+	trie := NewTrie()
+
+	err := trie.Put(firstKey, firstValue)
+
+	require.NoError(t, err)
+	require.IsType(t, &LeafNode{}, trie.root)
+
+	err = trie.Put(secondKey, secondValue)
+
+	require.NoError(t, err)
+	require.IsType(t, &ExtensionNode{}, trie.root)
+
+	err = trie.Put(thirdKey, thirdValue)
+
+	require.NoError(t, err)
+	require.IsType(t, &ExtensionNode{}, trie.root)
+}
