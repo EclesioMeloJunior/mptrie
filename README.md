@@ -6,8 +6,8 @@ The *Merkle Patricia Tree* structure is fatest to finding common prefixes and re
 
 ### Ready to use
 
-- [x] Put(key []byte, value []byte)
-- [] Get(key []byte)
+- [x] Put(key []byte, value []byte) error
+- [x] Get(key []byte) ([]byte, bool)
 - [] Storage(...)
 
 ### Test
