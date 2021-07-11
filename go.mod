@@ -1,4 +1,4 @@
-module github.com/EclesioMeloJunior/merkle-patricia-tree
+module github.com/EclesioMeloJunior/mptrie
 
 go 1.16
 

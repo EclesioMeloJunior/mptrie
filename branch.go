@@ -1,4 +1,4 @@
-package main
+package mptrie
 
 import "github.com/ethereum/go-ethereum/crypto"
 
