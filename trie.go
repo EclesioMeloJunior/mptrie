@@ -20,6 +20,56 @@ func (t *Trie) Hash() []byte {
 	return t.root.Hash()
 }
 
+func (t Trie) Get(key []byte) ([]byte, bool) {
+	node := t.root
+	nibbles := FromBytes(key)
+
+	for {
+		if node == nil {
+			return nil, false
+		}
+
+		if leaf, ok := node.(*LeafNode); ok {
+			matched := PrefixMatchedLen(nibbles, leaf.Path)
+			if matched != len(nibbles) || matched != len(leaf.Path) {
+				return nil, false
+			}
+
+			return leaf.Value, true
+		}
+
+		if branch, ok := node.(*BranchNode); ok {
+			if len(nibbles) == 0 {
+				return branch.Value, branch.HasValue()
+			}
+
+			b, remaining := nibbles[0], nibbles[1:]
+			nibbles = remaining
+
+			node = branch.Branches[b]
+			continue
+		}
+
+		if ext, ok := node.(*ExtensionNode); ok {
+			matched := PrefixMatchedLen(ext.Path, nibbles)
+
+			if matched < len(ext.Path) {
+				return nil, false
+			}
+
+			nibbles = nibbles[matched:]
+			node = ext.Next
+			continue
+		}
+
+		return nil, false
+	}
+}
+
+// Put inserts a key -> value in the merkle tree
+// EmptyNode     -> replace with a leaf node with the path
+// LeafNode      -> transform into a Extension Node add a new branch node and a new leaf node
+// ExtensionNode -> convert to a Extension Node with a shorter path, create a branch node that points to a new Extension Node
 func (t *Trie) Put(key, value []byte) error {
 	node := &t.root
 	nibbles := FromBytes(key)

@@ -217,3 +217,64 @@ func TestPut_WhenExtensionDoesntHaveRemaining(t *testing.T) {
 	require.NoError(t, err)
 	require.IsType(t, &ExtensionNode{}, trie.root)
 }
+
+func TestGet_ShouldReturnFalse_WhenPrefixDoesntMathc(t *testing.T) {
+	trie := NewTrie()
+
+	// get when trie.root is nil
+	v, ok := trie.Get([]byte("doesnt exits"))
+	require.False(t, ok)
+	require.Nil(t, v)
+
+	err := trie.Put([]byte("some-key"), []byte("some-value"))
+	require.NoError(t, err)
+
+	err = trie.Put([]byte("some-other-key"), []byte("other-value"))
+	require.NoError(t, err)
+
+	// get when extension node path doesn match
+	v, ok = trie.Get([]byte("doesnt exits"))
+	require.False(t, ok)
+	require.Nil(t, v)
+
+	err = trie.Put([]byte("another-key"), []byte("another-value"))
+	require.NoError(t, err)
+
+	// get when branch is root
+	v, ok = trie.Get([]byte("doesnt exits"))
+	require.False(t, ok)
+	require.Nil(t, v)
+}
+
+func TestGet_WhenValueExists(t *testing.T) {
+	trie := NewTrie()
+
+	err := trie.Put([]byte("some-key"), []byte("some-value"))
+	require.NoError(t, err)
+
+	v, ok := trie.Get([]byte("some-key"))
+	require.True(t, ok)
+	require.NotNil(t, v)
+	require.Equal(t, v, []byte("some-value"))
+
+	err = trie.Put([]byte("some-other-key"), []byte("other-value"))
+	require.NoError(t, err)
+
+	v, ok = trie.Get([]byte("some-other-key"))
+	require.True(t, ok)
+	require.NotNil(t, v)
+	require.Equal(t, v, []byte("other-value"))
+
+	err = trie.Put([]byte("another-key"), []byte("another-value"))
+	require.NoError(t, err)
+
+	v, ok = trie.Get([]byte("another-key"))
+	require.True(t, ok)
+	require.NotNil(t, v)
+	require.Equal(t, v, []byte("another-value"))
+
+	v, ok = trie.Get([]byte("some-key"))
+	require.True(t, ok)
+	require.NotNil(t, v)
+	require.Equal(t, v, []byte("some-value"))
+}
