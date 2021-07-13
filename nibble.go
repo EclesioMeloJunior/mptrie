@@ -1,7 +1,5 @@
 package mptrie
 
-import "fmt"
-
 type Nibble byte
 
 func IsNibble(nibble byte) bool {
@@ -58,8 +56,6 @@ func ToBytes(ns []Nibble) []byte {
 		b := byte(ns[i]<<4) + byte(ns[i+1])
 		buf = append(buf, b)
 	}
-
-	fmt.Println(buf)
 
 	return buf
 }
